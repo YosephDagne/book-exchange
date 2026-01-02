@@ -1,15 +1,8 @@
 <?php
 
-/**
- * Initialization File
- * Loads configuration, starts session, and includes all classes
- */
 
-// Load configuration first (before using constants)
 require_once __DIR__ . '/../config/database.php';
 
-// Ensure PHP uses the same timezone as the server/DB (prevents time-ago mismatches)
-// Use Africa/Nairobi for Ethiopia (UTC+3). Change if your server uses a different timezone.
 date_default_timezone_set('Africa/Nairobi');
 
 // Start session with custom settings
@@ -27,12 +20,9 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Provide a global $user instance for views/includes that expect it
-// (e.g., navbar uses $user->isLoggedIn()). Instantiate here so it's always available.
 try {
     $user = new User();
 } catch (Exception $e) {
-    // If User or Database fails to initialize, set $user to null and log the error
     error_log("Failed to create User instance: " . $e->getMessage());
     $user = null;
 }

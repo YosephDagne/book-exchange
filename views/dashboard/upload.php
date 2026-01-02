@@ -222,7 +222,7 @@ $result = $bookService->createListing(
                         <select name="exchange_type" class="form-select exchange-dropdown"
                             onchange="handleExchange(this.value)">
                             <option value="borrow">📚 Borrow</option>
-                            <option value="buy">💰 Buy</option>
+                            <option value="buy">💰 Sell</option>
                             <option value="donate">🎁 Donate</option>
                         </select>
                         <i class="bi bi-chevron-down dropdown-icon"></i>
