@@ -163,50 +163,73 @@ function timeAgo($datetime)
     }
 }
 
-// Simple email helper. Tries PHP mail() and falls back to logging the message if mail isn't configured.
+// Simple email helper. Tries PHPMailer, then SimpleSMTP, then PHP mail()
 function send_email($to, $subject, $body, $from = null)
 {
     $sent = false;
     $cfgFile = __DIR__ . '/../config/email.php';
     $config = file_exists($cfgFile) ? include $cfgFile : [];
 
-    // If SMTP is requested and PHPMailer exists, use it
+    // If SMTP is requested
     $useSmtp = !empty($config['use_smtp']);
     $mailerClass = '\\PHPMailer\\PHPMailer\\PHPMailer';
-    if ($useSmtp && class_exists($mailerClass)) {
-        try {
-            $mail = new $mailerClass(true);
-            $mail->isSMTP();
-            $mail->Host = $config['host'] ?? '';
-            $mail->SMTPAuth = true;
-            $mail->Username = $config['username'] ?? '';
-            $mail->Password = $config['password'] ?? '';
-            $mail->SMTPSecure = $config['encryption'] ?? 'tls';
-            $mail->Port = $config['port'] ?? 587;
-            if (isset($config['smtp_verify']) && $config['smtp_verify'] === false) {
-                $mail->SMTPOptions = [
-                    'ssl' => [
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true
-                    ]
-                ];
-            }
+    $simpleSmtpClass = 'SimpleSMTP';
 
-            $fromEmail = $config['from_email'] ?? ($from ?? 'no-reply@localhost');
-            $fromName = $config['from_name'] ?? 'UniConnect';
-            $mail->setFrom($fromEmail, $fromName);
-            $mail->addAddress($to);
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = $body;
-            $sent = $mail->send();
-        } catch (Exception $ex) {
-            $sent = false;
-            error_log('PHPMailer send failed: ' . $ex->getMessage());
+    $fromEmail = $config['from_email'] ?? ($from ?? 'no-reply@localhost');
+    $fromName = $config['from_name'] ?? 'UniConnect';
+
+    if ($useSmtp) {
+        if (class_exists($mailerClass)) {
+            // ... (keep PHPMailer code) ...
+             try {
+                $mail = new $mailerClass(true);
+                $mail->isSMTP();
+                $mail->Host = $config['host'] ?? '';
+                $mail->SMTPAuth = true;
+                $mail->Username = $config['username'] ?? '';
+                $mail->Password = $config['password'] ?? '';
+                $mail->SMTPSecure = $config['encryption'] ?? 'tls';
+                $mail->Port = $config['port'] ?? 587;
+                if (isset($config['smtp_verify']) && $config['smtp_verify'] === false) {
+                    $mail->SMTPOptions = [
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true
+                        ]
+                    ];
+                }
+
+                $mail->setFrom($fromEmail, $fromName);
+                $mail->addAddress($to);
+                $mail->isHTML(true);
+                $mail->Subject = $subject;
+                $mail->Body = $body;
+                $sent = $mail->send();
+            } catch (Exception $ex) {
+                $sent = false;
+                error_log('PHPMailer send failed: ' . $ex->getMessage());
+            }
+        } elseif (class_exists($simpleSmtpClass)) {
+             // Fallback to SimpleSMTP
+             try {
+                 $port = $config['port'] ?? 587;
+                 $smtp = new SimpleSMTP(
+                     $config['host'] ?? '',
+                     $port,
+                     $config['username'] ?? '',
+                     $config['password'] ?? ''
+                 );
+                 $sent = $smtp->send($to, $subject, $body, $fromEmail, $fromName);
+             } catch (Exception $ex) {
+                 $sent = false;
+                 error_log('SimpleSMTP send failed: ' . $ex->getMessage());
+             }
         }
-    } else {
-        // Fallback to PHP mail()
+    } 
+    
+    // Fallback to PHP mail() if SMTP failed or was not requested
+    if (!$sent && !$useSmtp) {
         $headers = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: text/html; charset=UTF-8\r\n";
         if ($from) {

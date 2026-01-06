@@ -16,9 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordReset = new PasswordReset();
         $result = $passwordReset->requestReset($email);
         if ($result['success']) {
-            $success_message = $result['message'];
-            // For demonstration, you might want to log the reset link or display it for testing
-            // echo "<p>Debug: Reset link: " . htmlspecialchars($result['reset_link']) . "</p>";
+            // Redirect to reset password page with email
+            $redirect_url = site_url('views/auth/reset_password.php?email=' . urlencode($email));
+            header("Location: " . $redirect_url);
+            exit();
         } else {
             $errors[] = $result['message'];
         }
@@ -35,48 +36,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 0;
+            background: linear-gradient(135deg, #f6f5ff 0%, #f0f9ff 100%);
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+        }
+        .auth-header {
+            background: var(--gradient-primary);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+        .auth-body {
+            padding: 2.5rem;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-5">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <h2 class="fw-bold"><i class="bi bi-book-half"></i> UniConnect</h2>
-                            <p class="text-muted">Forgot Your Password?</p>
-                        </div>
-
-                        <?php if (!empty($errors)): ?>
-                            <div class="alert alert-danger">
-                                <?php foreach ($errors as $error): ?>
-                                    <?= htmlspecialchars($error) ?><br>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (!empty($success_message)): ?>
-                            <div class="alert alert-success">
-                                <?= htmlspecialchars($success_message) ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <form method="POST" action="">
-                            <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" required autofocus>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">Send Reset Link</button>
-                        </form>
-
-                        <div class="text-center mt-3">
-                            <p>Remember your password? <a href="login.php">Login here</a></p>
-                        </div>
+    <div class="auth-card animated fade-in-up">
+        <div class="auth-header">
+            <h2 class="fw-bold mb-0"><i class="bi bi-shield-lock"></i> Recovery</h2>
+            <p class="mb-0 opacity-75">Restore access to your account</p>
+        </div>
+        
+        <div class="auth-body">
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger fade show">
+                    <i class="bi bi-exclamation-circle-fill alert-icon"></i>
+                    <div>
+                        <?php foreach ($errors as $error): ?>
+                            <div><?= htmlspecialchars($error) ?></div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($success_message)): ?>
+                <div class="alert alert-success fade show">
+                    <i class="bi bi-check-circle-fill alert-icon"></i>
+                    <div><?= htmlspecialchars($success_message) ?></div>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="name@university.edu.et" required autofocus>
+                    <div class="form-text">We'll send a recovery link to this email.</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary py-2 rounded-pill shadow-sm">
+                        Send OTP <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                    <a href="login.php" class="btn btn-light py-2 rounded-pill mt-2">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Login
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 

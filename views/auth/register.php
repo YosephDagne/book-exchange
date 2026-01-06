@@ -84,89 +84,124 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 0; /* Extra padding for scrolling if needed */
+            background: linear-gradient(135deg, #f6f5ff 0%, #f0f9ff 100%);
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+        }
+        .auth-header {
+            background: var(--gradient-primary);
+            padding: 2rem;
+            text-align: center;
+            color: white;
+        }
+        .auth-body {
+            padding: 2.5rem;
+        }
+    </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-6">
-                <div class="card shadow">
-                    <div class="card-body p-5">
+    <div class="auth-card animated fade-in-up">
+        <div class="auth-header">
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-book-half"></i> UniConnect
+            </h2>
+            <p class="mb-0 opacity-75">Create your account</p>
+        </div>
 
-                        <div class="text-center mb-4">
-                            <h2 class="fw-bold">
-                                <i class="bi bi-book-half"></i> UniConnect
-                            </h2>
-                            <p class="text-muted">Create your account</p>
-                        </div>
+        <div class="auth-body">
 
-                        <?php if (!empty($errors)): ?>
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    <?php foreach ($errors as $error): ?>
-                                        <li><?= htmlspecialchars($error) ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($success): ?>
-                            <div class="alert alert-success">
-                                <?= htmlspecialchars($success) ?>
-                                <a href="login.php" class="alert-link">Login now</a>
-                            </div>
-                        <?php endif; ?>
-
-                        <form method="POST">
-
-                            <div class="mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" name="full_name" class="form-control"
-                                    value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">University Email</label>
-                                <input type="email" name="email" class="form-control"
-                                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
-                               
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" name="phone" class="form-control"
-                                    value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" placeholder="0911234567">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
-                                <small class="text-muted">
-                                    Min 8 chars, uppercase, lowercase, number & special character
-                                </small>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" name="confirm_password" class="form-control" required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                Register
-                            </button>
-                        </form>
-
-                        <div class="text-center mt-3">
-                            <p>
-                                Already have an account?
-                                <a href="login.php">Login here</a>
-                            </p>
-                        </div>
-
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger fade show">
+                    <i class="bi bi-exclamation-circle-fill alert-icon"></i>
+                    <div>
+                        <ul class="mb-0 ps-3">
+                            <?php foreach ($errors as $error): ?>
+                                <li><?= htmlspecialchars($error) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
                 </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success fade show">
+                    <i class="bi bi-check-circle-fill alert-icon"></i>
+                    <div>
+                        <?= htmlspecialchars($success) ?>
+                        <div class="mt-2">
+                             <a href="login.php" class="btn btn-sm btn-success text-white">Login now</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST">
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Full Name</label>
+                    <input type="text" name="full_name" class="form-control" placeholder="John Doe"
+                    value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary">University Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="student@university.edu.et"
+                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control"
+                    value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" placeholder="0911234567">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                    <div class="form-text small">
+                        Min 8 chars, uppercase, lowercase, number & special char
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Confirm Password</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary py-2 rounded-pill shadow-sm">
+                        Create Account <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <p class="text-muted">
+                    Already have an account?
+                    <a href="login.php" class="fw-bold">Login</a>
+                </p>
+                <a href="<?= site_url('index.php') ?>" class="text-muted small text-decoration-none">
+                    <i class="bi bi-arrow-left"></i> Back to Home
+                </a>
             </div>
+
         </div>
     </div>
 
